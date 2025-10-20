@@ -1,4 +1,8 @@
 import { test, expect } from "@playwright/test";
+import { LoginPage } from "../pageObjects/LoginPage";
+import { Navigation } from "../pageObjects/Navigation";
+
+import { initializePageObjects } from "../helpers/pageObjectInitializer";
 
 const users = [
     { username: "standard_user", password: "secret_sauce", expectedResult: "success" },
@@ -6,22 +10,29 @@ const users = [
     { username: "problem_user", password: "secret_sauce", expectedResult: "success" }
 ];
 
+let loginPage: LoginPage;
+let navigation: Navigation;
+
 test.describe('Login tests', async () => {
     users.forEach((user) => {
         test.beforeEach(async ({ page }) => {
-            await page.goto('');
-            await expect(page).toHaveURL('https://www.saucedemo.com/');
+            ({ loginPage,
+                navigation
+            } = initializePageObjects(page));
+
+            await navigation.navigateToBaseUrl('');
+            await navigation.verifyUrl('https://www.saucedemo.com/');
         });
 
         test(`should login with valid credentials as ${user.username}`, async ({ page }) => {
-            await page.getByTestId('username').fill(user.username);
-            await page.getByTestId('password').fill(user.password);
-            await page.getByTestId('login-button').click();
+            await loginPage.fillUsername(user.username);
+            await loginPage.fillPassword(user.password);
+            await loginPage.clickLoginButton();
 
             if (user.expectedResult === 'success') {
-                await expect(page).toHaveURL('https://www.saucedemo.com/inventory.html');
+                await navigation.verifyUrl('https://www.saucedemo.com/inventory.html');
             } else {
-                await expect(page).toHaveURL('https://www.saucedemo.com');
+                await navigation.verifyUrl('https://www.saucedemo.com');
             }
         });
     });
