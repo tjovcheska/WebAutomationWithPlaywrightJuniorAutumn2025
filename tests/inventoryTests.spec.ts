@@ -29,13 +29,33 @@ test.describe('Inventory page tests', async () => {
         await navigation.verifyUrl('https://www.saucedemo.com/inventory.html');
     });
 
+    test('should decrease the number of items in the cart after clicking add to cart button on an already added item', async ({ page }) => {
+        await inventoryPage.clickAddToCartButton('backpack');
+        await inventoryPage.clickAddToCartButton('bike-light');
+        await inventoryPage.validateShoppingCartBadgeCount(2);
+        await inventoryPage.clickRemoveButton('backpack');
+        await inventoryPage.validateShoppingCartBadgeCount(1);
+    });
+
     test('should add an item to the cart and should validate the item count', async ({ page }) => {
         await inventoryPage.verifyInventoryPageTitle('Products');
 
-        await expect(page.getByTestId('shopping-cart-badge')).not.toBeAttached();
-        // await page.getByText('Add to cart').nth(0).click();
-        await page.getByTestId('add-to-cart-sauce-labs-backpack').click();
-        await expect(page.getByTestId('shopping-cart-badge')).toBeAttached();
-        await expect(page.getByTestId('shopping-cart-badge')).toHaveText('1');
+        await inventoryPage.verifyShoppingCarBadgeAttached(false);
+        await inventoryPage.clickAddToCartButton('backpack');
+        await inventoryPage.verifyShoppingCarBadgeAttached();
+        await inventoryPage.validateShoppingCartBadgeCount(1);
+    });
+
+    test('should sort inventory items Z-A', async () => {
+        await inventoryPage.assertSortedTitles('Sauce Labs Backpack', 'Test.allTheThings() T-Shirt (Red)');
+        await inventoryPage.sortItemsBy('za');
+        await inventoryPage.assertSortedTitles('Test.allTheThings() T-Shirt (Red)', 'Sauce Labs Backpack');
+    });
+
+    test('should sort inventory items Low-High', async ({ page }) => {
+        await inventoryPage.assertSortedPrices();
+        await inventoryPage.sortItemsBy('lohi');
+        await inventoryPage.assertSortedPrices();
+
     });
 });
