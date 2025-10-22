@@ -1,4 +1,4 @@
-import { expect, Locator, Page } from '@playwright/test';
+import test, { expect, Locator, Page } from '@playwright/test';
 
 export class LoginPage {
     constructor(
@@ -11,15 +11,21 @@ export class LoginPage {
     }
 
     async fillUsername(username: string) {
-        await this.userInput.fill(username);
+        await test.step(`Fill username input filed with ${username}`, async () => {
+            await this.userInput.fill(username);
+        });
     }
 
     async fillPassword(password: string) {
-        await this.passwordInput.fill(password);
+        await test.step(`Fill password input field with ${password}`, async () => {
+            await this.passwordInput.fill(password);
+        });
     }
 
     async clickLoginButton() {
-        await this.loginButton.click();
+        await test.step('Click Login button', async () => {
+            await this.loginButton.click();
+        });
     }
 
     async assertErrorMessageVisibility(isVisible = true) {
